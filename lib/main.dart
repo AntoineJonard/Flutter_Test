@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hello_world/Home.dart';
-import 'file:///C:/Users/antoi/AndroidStudioProjects/flutter_hello_world/lib/Model/NameModel.dart';
 import 'Model/MarkModel.dart';
 import 'package:provider/provider.dart';
+
+import 'Model/NameModel.dart';
 
 void main() => runApp(MyApp());
 

@@ -1,9 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'file:///C:/Users/antoi/AndroidStudioProjects/flutter_hello_world/lib/Model/MarkModel.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+
+import 'Model/MarkModel.dart';
 
 class Map extends StatefulWidget {
   @override

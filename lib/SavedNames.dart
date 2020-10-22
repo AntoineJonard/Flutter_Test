@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
-import 'file:///C:/Users/antoi/AndroidStudioProjects/flutter_hello_world/lib/Model/NameModel.dart';
+import 'Model/NameModel.dart';
 import 'package:provider/provider.dart';
 
 
