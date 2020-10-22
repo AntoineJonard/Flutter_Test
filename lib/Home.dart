@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hello_world/FindPosition.dart';
 import 'package:flutter_hello_world/Map.dart';
 import 'RandomWords.dart';
 
@@ -19,7 +20,8 @@ class _HomeState extends State{
 
   static List<Widget> _pagesRoutes = <Widget>[
     RandomWords(),
-    Map()
+    Map(),
+    FindPosition()
   ];
   
   @override
@@ -32,6 +34,7 @@ class _HomeState extends State{
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Names'),
           BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
+          BottomNavigationBarItem(icon: Icon(Icons.find_in_page),label: 'Find')
         ],
         currentIndex: _selectedIndex,
         onTap: setIndex,

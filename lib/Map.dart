@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hello_world/Model/NameModel.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -60,20 +62,12 @@ class AddNewMarker extends StatefulWidget{
 }
 
 class _AddNewMarkerState extends State<AddNewMarker>{
-  TextEditingController _controller;
-
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  String dropdownValue;
 
   @override
   Widget build(BuildContext context) {
+    NameModel nameModel = Provider.of<NameModel>(context, listen: false);
+    if ((dropdownValue == null || dropdownValue.isEmpty) && nameModel.saved.isNotEmpty) dropdownValue = nameModel.saved.first.asCamelCase;
     return Scaffold(
       appBar: AppBar(
         title: Text('Create New Marker'),
@@ -81,29 +75,53 @@ class _AddNewMarkerState extends State<AddNewMarker>{
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         backgroundColor: Colors.deepPurple,
-        onPressed: () => {
-          Provider.of<MarkerModel>(context, listen: false).addMarker(
-            Marker(
+        onPressed: addMarkerName,
+      ),
+      body: Center(
+        child: DropdownButton<String>(
+          value: dropdownValue,
+          items: Provider.of<NameModel>(context).getSavedNamesAsDropDownString(),
+          onChanged: (String newValue) {
+            setState(() {
+                dropdownValue = newValue;
+            });
+          },
+          style: TextStyle(
+            fontSize: 35,
+            fontStyle: FontStyle.italic,
+            color: Colors.pink,
+          ),
+          underline: Container(
+            height: 2,
+            color: Colors.pink,
+          ),
+          icon: Icon(Icons.arrow_drop_down),
+          iconSize: 30,
+        )
+      ),
+    );
+  }
+
+  addMarkerName() {
+    if (dropdownValue != null && dropdownValue.isNotEmpty){
+      Provider.of<MarkerModel>(context, listen: false).addMarker(
+          Marker(
               markerId: MarkerId(
-                  _controller.value.text
+                  dropdownValue
               ),
               position: widget._pos,
               infoWindow: InfoWindow(
-                title: _controller.value.text
+                  title: dropdownValue
               )
-            )
           )
-        },
-      ),
-      body: Center(
-        child: TextField(
-          controller: _controller,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Name',
-          ),
-        ),
-      ),
-    );
+      );
+      setState(() {
+        NameModel nameModel = Provider.of<NameModel>(context, listen: false);
+        nameModel.removeNameFromString(dropdownValue);
+        if (nameModel.saved.isNotEmpty) dropdownValue = nameModel.saved.first.asCamelCase;
+        else dropdownValue = 'no more names';
+      });
+      Navigator.pop(context);
+    }
   }
 }
