@@ -20,9 +20,36 @@ class FindPosition extends StatefulWidget {
 class _FindPositionState extends State<FindPosition> {
   GoogleMapController myController;
   final _markers = Set<Marker>();
+  double _chrono = 30.00;
 
   final LatLng home = const LatLng(50.331173, 3.512469);
 
+  @override
+  void initState(){
+    incChrono();
+  }
+
+  @override
+  void dispose(){
+    _chrono = -1.00;
+    super.dispose();
+  }
+
+  Future<void> incChrono() async{
+    await Future.delayed(Duration(milliseconds: 100));
+    if (_chrono >= 0.00 ) {
+      setState(() {
+          _chrono-=0.1;
+          incChrono();
+        }
+      );
+    }
+    else {
+      _showNoTimeDialog();
+
+    };
+  }
+  
   void onMapCreated(GoogleMapController controller) {
     myController = controller;
   }
@@ -32,15 +59,34 @@ class _FindPositionState extends State<FindPosition> {
       appBar: AppBar(
         title: Text('Find your positions')
       ),
-      body: GoogleMap(
-        onMapCreated: onMapCreated,
-        initialCameraPosition: CameraPosition(
-          zoom: 11.0,
-          target: home,
-        ),
-        onLongPress: onLongPress,
-        markers: _markers,
-      ),
+      body: Stack(
+        children: <Widget>[
+          GoogleMap(
+            onMapCreated: onMapCreated,
+            initialCameraPosition: CameraPosition(
+              zoom: 11.0,
+              target: home,
+            ),
+            onLongPress: onLongPress,
+            markers: _markers,
+          ),
+          Positioned(
+            child: Container(
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+              color: Color.fromRGBO(150, 150, 150, 0.7),
+              child: Text(
+                '${_chrono.toStringAsFixed(2)}',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            top: 60,
+            left: 60,
+          )
+        ],
+      )
     );
   }
 
@@ -98,6 +144,36 @@ class _FindPositionState extends State<FindPosition> {
               child: Text('continue to find'),
               onPressed: () {
                 Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showNoTimeDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('No More Time'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('You are too slow'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('retry'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _markers.clear();
+                _chrono = 30.00;
+                incChrono();
               },
             ),
           ],
