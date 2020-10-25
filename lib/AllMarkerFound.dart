@@ -29,7 +29,14 @@ class AllMarkerFound extends StatelessWidget{
             SizedBox(height: 30),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  fontSize: 35,
+                  fontStyle: FontStyle.italic,
+                  color: Color.fromRGBO(105, 60, 105, 1),
+                ),
+              ),
             )
           ]
         ),

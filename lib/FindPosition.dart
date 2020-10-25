@@ -75,21 +75,6 @@ class _FindPositionState extends State<FindPosition> {
                 padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                 color: Color.fromRGBO(150, 150, 150, 0.7),
                 child: Text(
-                  '${_chrono.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              top: 60,
-              left: 40,
-            ),
-            Positioned(
-              child: Container(
-                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                color: Color.fromRGBO(150, 150, 150, 0.7),
-                child: Text(
                   'Remaining markers : ${Provider.of<MarkerModel>(context, listen: false).markers.difference(_markers).length}',
                   style: TextStyle(
                     fontSize: 20,
@@ -97,11 +82,27 @@ class _FindPositionState extends State<FindPosition> {
                   ),
                 ),
               ),
-              top: 60,
-              right: 40,
+              top: 70,
+              left: 20,
+            ),
+            Positioned(
+              child: Container(
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                color: Color.fromRGBO(150, 150, 150, 0.7),
+                child: Text(
+                  '${_chrono.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              top: 20,
+              left: 20,
             ),
           ],
-        ));
+        )
+    );
   }
 
   void onLongPress(LatLng pos) {
@@ -122,10 +123,10 @@ class _FindPositionState extends State<FindPosition> {
         else {
           _showFindDialog();
         }
-      } else {
-        Scaffold.of(context).showSnackBar(widget.missedSnackBar);
+        return;
       }
     }
+    Scaffold.of(context).showSnackBar(widget.missedSnackBar);
   }
 
   bool areClose(LatLng pos, Marker marker) {
