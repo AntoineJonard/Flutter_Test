@@ -60,7 +60,7 @@ class _AddNewMarkerState extends State<AddNewMarker> {
 
   static final textStyle = TextStyle(
     fontSize: 35,
-    fontStyle: FontStyle.italic,
+    fontStyle: FontStyle.normal,
     color: Color.fromRGBO(105, 105, 105, 1),
   );
 

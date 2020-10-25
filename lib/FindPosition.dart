@@ -82,7 +82,7 @@ class _FindPositionState extends State<FindPosition> {
                   ),
                 ),
               ),
-              top: 70,
+              top: 20,
               left: 20,
             ),
             Positioned(
@@ -97,7 +97,7 @@ class _FindPositionState extends State<FindPosition> {
                   ),
                 ),
               ),
-              top: 20,
+              top: 70,
               left: 20,
             ),
           ],
