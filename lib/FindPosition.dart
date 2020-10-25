@@ -3,18 +3,18 @@ import 'package:flutter_hello_world/Model/MarkModel.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
-
+import 'AllMarkerFound.dart';
 
 class FindPosition extends StatefulWidget {
   final SnackBar _missedSnackBar = SnackBar(content: Text('Missed :('));
-  final SnackBar _noMoreMarkerSnackBar = SnackBar(content: Text('No more marker to find :)'));
+  final SnackBar _noMoreMarkerSnackBar =
+      SnackBar(content: Text('No more marker to find :)'));
 
   SnackBar get missedSnackBar => _missedSnackBar;
   SnackBar get noMoreMarkerSnackBar => _noMoreMarkerSnackBar;
-  
+
   @override
   _FindPositionState createState() => _FindPositionState();
-
 }
 
 class _FindPositionState extends State<FindPosition> {
@@ -24,85 +24,105 @@ class _FindPositionState extends State<FindPosition> {
 
   final LatLng home = const LatLng(50.331173, 3.512469);
 
+  bool _stopChrono = false;
+
   @override
-  void initState(){
+  void initState() {
     incChrono();
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _chrono = -1.00;
     super.dispose();
   }
 
-  Future<void> incChrono() async{
+  Future<void> incChrono() async {
     await Future.delayed(Duration(milliseconds: 100));
-    if (_chrono >= 0.00 ) {
-      setState(() {
-          _chrono-=0.1;
+    if (this.mounted && !_stopChrono){
+      if (_chrono >= 0.00) {
+        setState(() {
+          _chrono -= 0.1;
           incChrono();
-        }
-      );
+        });
+      } else {
+        _showNoTimeDialog();
+      }
     }
-    else {
-      _showNoTimeDialog();
-
-    };
   }
-  
+
   void onMapCreated(GoogleMapController controller) {
     myController = controller;
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Find your positions')
-      ),
-      body: Stack(
-        children: <Widget>[
-          GoogleMap(
-            onMapCreated: onMapCreated,
-            initialCameraPosition: CameraPosition(
-              zoom: 11.0,
-              target: home,
+        appBar: AppBar(title: Text('Find your positions')),
+        body: Stack(
+          children: <Widget>[
+            GoogleMap(
+              onMapCreated: onMapCreated,
+              initialCameraPosition: CameraPosition(
+                zoom: 11.0,
+                target: home,
+              ),
+              onLongPress: onLongPress,
+              markers: _markers,
             ),
-            onLongPress: onLongPress,
-            markers: _markers,
-          ),
-          Positioned(
-            child: Container(
-              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-              color: Color.fromRGBO(150, 150, 150, 0.7),
-              child: Text(
-                '${_chrono.toStringAsFixed(2)}',
-                style: TextStyle(
+            Positioned(
+              child: Container(
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                color: Color.fromRGBO(150, 150, 150, 0.7),
+                child: Text(
+                  '${_chrono.toStringAsFixed(2)}',
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
+              top: 60,
+              left: 40,
             ),
-            top: 60,
-            left: 60,
-          )
-        ],
-      )
-    );
+            Positioned(
+              child: Container(
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                color: Color.fromRGBO(150, 150, 150, 0.7),
+                child: Text(
+                  'Remaining markers : ${Provider.of<MarkerModel>(context, listen: false).markers.difference(_markers).length}',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              top: 60,
+              right: 40,
+            ),
+          ],
+        ));
   }
 
   void onLongPress(LatLng pos) {
     MarkerModel markerModel = Provider.of<MarkerModel>(context, listen: false);
-    if (markerModel.markers.difference(_markers).isEmpty) Scaffold.of(context).showSnackBar(widget._noMoreMarkerSnackBar);
-    for (Marker marker in markerModel.markers.difference(_markers)){
+    if (markerModel.markers.difference(_markers).isEmpty)
+      Scaffold.of(context).showSnackBar(widget._noMoreMarkerSnackBar);
+    for (Marker marker in markerModel.markers.difference(_markers)) {
       if (areClose(pos, marker)) {
         setState(() {
-          _markers.add(
-            marker
-          );
+          _markers.add(marker);
         });
-        _showFindDialog();
-      }
-      else {
+        if (markerModel.markers.difference(_markers).isEmpty){
+          setState(() {
+            _stopChrono = true;
+          });
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AllMarkerFound()));
+        }
+        else {
+          _showFindDialog();
+        }
+      } else {
         Scaffold.of(context).showSnackBar(widget.missedSnackBar);
       }
     }
@@ -110,15 +130,19 @@ class _FindPositionState extends State<FindPosition> {
 
   bool areClose(LatLng pos, Marker marker) {
     double earthRadius = 6371000; //meters
-    double dLat = degreesToRads(marker.position.latitude-pos.latitude);
-    double dLng = degreesToRads(marker.position.longitude-pos.longitude);
-    double a = sin(dLat/2) * sin(dLat/2) +
-        cos(degreesToRads(pos.latitude)) * cos(degreesToRads(marker.position.latitude)) *
-            sin(dLng/2) * sin(dLng/2);
-    double c = 2 * atan2(sqrt(a), sqrt(1-a));
+    double dLat = degreesToRads(marker.position.latitude - pos.latitude);
+    double dLng = degreesToRads(marker.position.longitude - pos.longitude);
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(degreesToRads(pos.latitude)) *
+            cos(degreesToRads(marker.position.latitude)) *
+            sin(dLng / 2) *
+            sin(dLng / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
     double dist = earthRadius * c;
-    if (dist < 1000) return true;
-    else return false;
+    if (dist < 1000)
+      return true;
+    else
+      return false;
   }
 
   num degreesToRads(num deg) {
@@ -135,7 +159,7 @@ class _FindPositionState extends State<FindPosition> {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('You\'ve found your first maker'),
+                Text('You\'ve found a marker'),
               ],
             ),
           ),
